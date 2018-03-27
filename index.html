@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+	<head>
+		<meta charset="utf-8" />
+		<title>portfolio</title>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+        <link rel="stylesheet" type="text/css" href="jlinvertScroll.css"/>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+       <script type="text/javascript" src="jquery.horizonScroll.js"></script>
+       <script type="text/javascript" src="jquery.touchSwipe.js"></script>
+	</head>
+
+	<body>
+	<div id="main">
+		<div id="affichage">
+			<canvas id="canvas" width="1000px" height="1000px">
+	 			<p>Désolé, votre navigateur ne supporte pas Canvas.</p>
+			</canvas>
+		</div>
+
+		<div id="parametres">
+			<div class="intro" style="float:left;">
+                <center>
+                    <h2>Entrez votre date de naissance</h2>
+                    <p class="precisionControl">et appuyer sur entrée</p>
+                </center>
+
+				<center>
+				        <input class="trigger" id="xKang" type="text" placeholder="Entrez votre jour" style="width:100px;" onKeyPress="if (event.keyCode == 13) actuControle()" />
+						<input class="trigger" id="yKang" type="text" placeholder="Entrez votre mois" style="width:100px;" onKeyPress="if (event.keyCode == 13) actuControle()" />
+                    <br/>
+                        <button id="clickMe" onclick="render()">Let's Play</button>
+				</center>
+
+			</div>
+			<div class="hiding" style="float:left;">
+				<h2>Affichage</h2>
+				<center>
+				<table style="text-align:right; padding: 10px;">
+					<tr>
+						<td><strong>Épaisseur de ligne :</strong> <input id="epaisseur" type="text" value="1" style="width:50px;"/></td>
+					</tr>
+					<tr>
+						<td><strong>Taille des points :</strong> <input id="points" type="text" value="0" style="width:50px;"/></td>
+					</tr>
+				</table>
+				</center>
+			</div>
+		</div>
+
+        
+
+        <div class="testScroll"></div>
+        
+            <div class="testScroll1 testScroll">
+        <div id="acceuil">
+            <h1>Hello, Welcome to my place !</h1>
+                </div>
+            </div>
+
+        <div class="testScroll2 testScroll">
+            <div id="acceuil">
+                <h1>Hello, Welcome to my place !</h1>
+            </div>
+        </div>
+
+        <div class="testScroll3 testScroll">
+            <div id="acceuil">
+                <h1>Hello, Welcome to my place !</h1>
+            </div>
+        </div>
+
+        <div class="testScroll4 testScroll">
+            <div id="acceuil">
+                <h1>Hello, Welcome to my place !</h1>
+            </div>
+        </div>
+
+        <div class="testScroll5 testScroll">
+            <div id="acceuil">
+                <h1>Hello, Welcome to my place !</h1>
+            </div>
+        </div>
+
+        <div class="testScroll6 testScroll">
+            <div id="acceuil">
+                <h1>Hello, Welcome to my place !</h1>
+            </div>
+        </div>
+</div>
+
+	
+
+	<div id="menu-navigation">
+        <button id="mPlaceHm" data-scroll="1">Home</button>
+        <button id="mPlaceCp" data-scroll="2">Compétences</button>
+        <button id="mPlacePf" data-scroll="3">Portfolio</button>
+        <button id="mPlaceCt" data-scroll="4">Contact</button>
+        <button id="mPlaceRx" data-scroll="5">Relax</button>
+    </div>
+
+	
+
+	
+
+	<script>
+
+		
+
+		//valeurs par défaut des paramètres
+
+		var xfenetre=600;  //largeur et longueur de la fenêtre ce contrôle
+		var yfenetre=400;
+		var xaffiche=1000;  //largeur et longueur de la fenêtre d'affichage des figures
+		var yaffiche=1000;
+		var x=1;			// paramètres des figures
+		var y=1;
+		var epaisseur=4;		// epaisseur des lignes tracées en px
+		var taillePoints=8;		// rayon des points en px
+
+		
+
+		//variables spécifiques
+
+		var colorCycle=false; // si true, les cycles sont affichés dans des couleurs différentes.
+		var etoilesCycle = false;
+
+		init();
+
+        function init() { //fonction qui initialise les paramètres de la page
+			placeElementsPage();
+			actuControle();
+		  }
+
+		
+
+	function initCanvas() { //tourne le canvas pour que l'origine des angles soit en haut.
+			var canvas  = document.querySelector('#canvas');
+			var context = canvas.getContext('2d');
+			context.translate(canvas.width / 2, canvas.height / 2);
+			context.rotate(-Math.PI/2);
+			context.translate(-canvas.width / 2, -canvas.height / 2);
+			}
+
+	function placeElementsPage() {
+			var largeurPage = window.innerWidth;
+			var hauteurPage = window.innerHeight;			
+
+			document.getElementById("affichage").style.height = "1000px";//Math.min(Math.max(((hauteurPage-a-b)*0.9),800),largeurPage*0.3)+"px";
+			document.getElementById("affichage").style.width = document.getElementById("affichage").style.height;			
+
+			initCanvas();            
+
+			xaffiche = document.getElementById("affichage").offsetWidth;
+			yaffiche = document.getElementById("affichage").offsetHeight;
+		}
+
+		window.addEventListener('resize', function(e) { // gère le changement de taille de la fenêtre
+				actuControle();
+			}, false);			
+
+			
+
+		function traceEtoile(n,k,can) { //fonction qui trace le bolygone
+			var canvas  = document.querySelector('#'+can);
+			var xcan= canvas.offsetWidth;
+			var ycan= canvas.offsetHeight;
+			var rayonEtoile=Math.min(xcan,ycan)/2.2;
+			var context = canvas.getContext('2d');
+			context.clearRect ( 0 , 0 , canvas.width, canvas.height );
+			context.strokeStyle = "rgb(40, 40, 40)";
+			context.fillStyle = "rgba(140, 40, 40, 1)";
+			context.lineWidth = ""+epaisseur;
+			context.beginPath();	
+				for (var i=0 ; i<n ; i++) {
+					context.moveTo(xcan/2+rayonEtoile*Math.cos(2*i*(1/n)*Math.PI), ycan/2+rayonEtoile*Math.sin(2*i*(1/n)*Math.PI));
+					context.lineTo(xcan/2+rayonEtoile*Math.cos(2*i*k*(1/n)*Math.PI), ycan/2+rayonEtoile*Math.sin(2*i*k*(1/n)*Math.PI));
+					}
+					context.stroke();
+
+			if (taillePoints>0) { //on trace les n points si on veut qu'ils soient affichés
+				for (var i=0 ; i<n ; i++) {
+					context.moveTo(xcan/2+rayonEtoile*Math.cos(2*i*(1/n)*Math.PI)+taillePoints, ycan/2+rayonEtoile*Math.sin(2*i*(1/n)*Math.PI));
+					context.arc(xcan/2+rayonEtoile*Math.cos(2*i*(1/n)*Math.PI), ycan/2+rayonEtoile*Math.sin(2*i*(1/n)*Math.PI), taillePoints, 0, 2*Math.PI);
+					context.fill();
+					}
+				}
+		}
+
+		
+
+		function actuControle() { // fonction qui récupère les paramètres entrés par l'utilisateur et actualise l'affichage de la grille et de l'étoile.
+				x = parseFloat(document.getElementById('xKang').value, 10)+31;
+            console.log(x);
+				y = parseFloat(document.getElementById('yKang').value, 10)+12;
+            console.log(y);
+				epaisseur = parseInt(document.getElementById('epaisseur').value, 10);
+				taillePoints = parseInt(document.getElementById('points').value, 10);
+				traceEtoile(x,y,"canvas"); // et retrace l'étoile
+			}
+
+
+
+        $(".trigger").keydown(function(event){
+            if (event.keyCode == 13) {
+            $("#clickMe").fadeIn();
+        }
+    });
+        
+	// Fonctions spécifiques aux bolygones (aucune)
+
+function render () {
+            var intro = $('.intro');
+            var menu = $('#menu-navigation');
+            intro.fadeOut();
+            menu.fadeIn();
+                
+            setInterval(function(){
+            var context = canvas.getContext('2d');
+            context.clearRect(0,0,400,400);
+            x += 0.001;
+            y += 0.001;   
+            traceEtoile(x,y,"canvas");
+        },30);
+}
+
+        $('.testScroll').horizon({i: 0,swipe: true});
+
+        $('button').click(function(event) {
+        	var index = $(this).data("scroll");
+        	console.log(index);
+        	$('.testScroll').horizon('scrollTo', parseInt(index));
+        });
+        
+       $(window).scroll(function() {
+           var a = ($(window).width());
+           var b = ($(window).scrollLeft());
+           console.log(b-a);
+        
+           if(($(window).scrollLeft() > 177)  && $(window).width() > 900) {
+            $(canvas).css({top:'27px',left:'50%'});
+            };
+             
+            if(($(window).scrollLeft() > -2000)  && $(window).width() < -3000) {
+                $(canvas).css({top:'20px',left:'-20px'});
+            };
+             
+            if(($(window).scrollLeft() > 2000)  && $(window).width() < 4000) {
+                $(canvas).css({top:'60px',left:'-20px'});
+            };
+                          
+            if($(window).scrollLeft() < 177) {
+                $(canvas).css({top:'',left:''});
+            };
+             
+            if($(window).scrollLeft() == $(document).height() - $(window).height()) {
+                $('.gototop').fadeIn().css({display:'block'})
+                }             
+        
+           if($(window).scrollLeft() < $(document).height() - $(window).height()) {
+                $('.gototop').fadeOut().css({            
+                })
+                }
+                                  
+    });
+        
+        /*$("#mPlaceHm").click(function(){
+
+            $('.testScroll2').horizon('ScrollLeft');
+
+            $(canvas).css({left:'300px',top:'50px'});
+
+        });
+
+    
+
+        $("#mPlaceCp").click(function(){
+
+            $('.testScroll3').horizon('ScrollLeft');
+
+            $(canvas).css({left:'900px',top:'50px'});
+
+        });
+
+        
+
+        $("#mPlacePf").click(function(){
+
+            $('.testScroll4').horizon('ScrollLeft');
+
+            $(canvas).css({left:'150px',top:'250px'});
+
+        });
+
+        
+
+        $("#mPlaceCt").click(function(){
+
+            $('.testScroll5').horizon('ScrollLeft');
+
+            $(canvas).css({left:'-100px',top:'-100px'});
+
+        });
+
+        
+
+         $("#mPlaceRx").click(function(){
+
+            $('.testScroll').horizon('ScrollLeft');
+
+            $(canvas).css({left:'20px',top:'-50px'});
+
+        });*/
+
+        
+
+        </script>
+
+	
+
+  </body>
+
+</html>
+
+
